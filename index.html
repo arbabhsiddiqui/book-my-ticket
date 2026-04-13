@@ -15,11 +15,223 @@
     </style>
   </head>
   <body
-    class="min-h-screen flex items-center justify-center p-6 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900"
+    class="min-h-screen flex flex-col p-6 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900"
   >
+    <!-- Navbar (shown when logged in) -->
     <div
-      class="max-w-7xl w-full bg-slate-800/80 backdrop-blur-xl rounded-3xl shadow-2xl p-10 border border-slate-700/50"
+      id="navbar"
+      class="hidden mb-6 pb-6 border-b border-slate-700 flex items-center justify-between mx-auto w-full max-w-7xl"
     >
+      <span class="text-cyan-400 font-semibold text-lg" id="userGreeting"
+        >Welcome, User</span
+      >
+      <button
+        id="logoutBtn"
+        class="px-4 py-2 bg-rose-500 hover:bg-rose-600 rounded-lg text-white font-medium transition-colors"
+      >
+        Logout
+      </button>
+    </div>
+
+    <!-- Auth Panel -->
+    <div
+      id="authPanel"
+      class="hidden fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50"
+    >
+      <div
+        class="bg-slate-800 rounded-3xl shadow-2xl p-8 w-full max-w-md border border-slate-700/50"
+      >
+
+        <!-- Login Form -->
+        <div id="loginForm">
+          <h2
+            class="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400 mb-6"
+          >
+            Login
+          </h2>
+          <form id="loginFormElement" class="space-y-4">
+            <div>
+              <label class="block text-slate-300 mb-2 font-medium">Email</label>
+              <input
+                type="email"
+                id="loginEmail"
+                class="w-full p-3 rounded-lg bg-slate-900 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400"
+                placeholder="your@email.com"
+                required
+              />
+            </div>
+            <div>
+              <label class="block text-slate-300 mb-2 font-medium"
+                >Password</label
+              >
+              <input
+                type="password"
+                id="loginPassword"
+                class="w-full p-3 rounded-lg bg-slate-900 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400"
+                placeholder="••••••••"
+                required
+              />
+            </div>
+            <div id="loginError" class="text-red-400 text-sm hidden"></div>
+            <button
+              type="submit"
+              class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 rounded-lg text-white font-bold transition-colors"
+            >
+              Login
+            </button>
+            <p class="text-center text-slate-400">
+              Don't have an account?
+              <button
+                type="button"
+                id="switchToRegister"
+                class="text-cyan-400 hover:text-cyan-300 font-semibold"
+              >
+                Register
+              </button>
+            </p>
+          </form>
+        </div>
+
+        <!-- Register Form -->
+        <div id="registerForm" class="hidden">
+          <h2
+            class="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400 mb-6"
+          >
+            Register
+          </h2>
+          <form id="registerFormElement" class="space-y-4">
+            <div>
+              <label class="block text-slate-300 mb-2 font-medium">Name</label>
+              <input
+                type="text"
+                id="registerName"
+                class="w-full p-3 rounded-lg bg-slate-900 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400"
+                placeholder="Your Name"
+                required
+              />
+            </div>
+            <div>
+              <label class="block text-slate-300 mb-2 font-medium">Email</label>
+              <input
+                type="email"
+                id="registerEmail"
+                class="w-full p-3 rounded-lg bg-slate-900 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400"
+                placeholder="your@email.com"
+                required
+              />
+            </div>
+            <div>
+              <label class="block text-slate-300 mb-2 font-medium"
+                >Password</label
+              >
+              <input
+                type="password"
+                id="registerPassword"
+                class="w-full p-3 rounded-lg bg-slate-900 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400"
+                placeholder="••••••••"
+                required
+              />
+            </div>
+            <div>
+              <label class="block text-slate-300 mb-2 font-medium"
+                >Confirm Password</label
+              >
+              <input
+                type="password"
+                id="registerConfirmPassword"
+                class="w-full p-3 rounded-lg bg-slate-900 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400"
+                placeholder="••••••••"
+                required
+              />
+            </div>
+            <div id="registerError" class="text-red-400 text-sm hidden"></div>
+            <button
+              type="submit"
+              class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 rounded-lg text-white font-bold transition-colors"
+            >
+              Register
+            </button>
+            <p class="text-center text-slate-400">
+              Already have an account?
+              <button
+                type="button"
+                id="switchToLogin"
+                class="text-cyan-400 hover:text-cyan-300 font-semibold"
+              >
+                Login
+              </button>
+            </p>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Email Verification Confirmation Panel -->
+    <div
+      id="verificationPanel"
+      class="hidden fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50"
+    >
+      <div
+        class="bg-slate-800 rounded-3xl shadow-2xl p-8 w-full max-w-md border border-slate-700/50 text-center"
+      >
+        <div class="mb-6 flex justify-center">
+          <div
+            class="w-16 h-16 rounded-full bg-emerald-500/20 border border-emerald-500 flex items-center justify-center"
+          >
+            <svg
+              class="w-8 h-8 text-emerald-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M5 13l4 4L19 7"
+              ></path>
+            </svg>
+          </div>
+        </div>
+        <h2 class="text-2xl font-bold text-emerald-400 mb-3">
+          Registration Successful!
+        </h2>
+        <p class="text-slate-300 mb-6">
+          A verification email has been sent to<br />
+          <span id="verificationEmail" class="font-semibold text-cyan-400"
+            >your@email.com</span
+          >
+        </p>
+        <div
+          class="bg-slate-900/50 rounded-lg p-4 mb-6 text-left border border-slate-700"
+        >
+          <p class="text-slate-300 text-sm mb-3">
+            <strong>What's next?</strong>
+          </p>
+          <ol class="text-slate-400 text-sm space-y-2">
+            <li>📧 Check your email inbox</li>
+            <li>🔗 Click the verification link</li>
+            <li>✅ Your account will be verified</li>
+            <li>🔐 Return here and login</li>
+          </ol>
+        </div>
+        <p class="text-slate-400 text-xs mb-4">
+          If you don't see the email, check your spam folder
+        </p>
+        <button
+          id="backToLoginBtn"
+          class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 rounded-lg text-white font-bold transition-colors"
+        >
+          Back to Login
+        </button>
+      </div>
+    </div>
+
+    <!-- Main Seats Container -->
+    <div class="flex-1 flex items-center justify-center">
+      <div
+        class="max-w-7xl w-full bg-slate-800/80 backdrop-blur-xl rounded-3xl shadow-2xl p-10 border border-slate-700/50"
+      >
       <div class="text-center mb-10">
         <h1
           class="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400 mb-4 tracking-tight"
@@ -104,13 +316,31 @@
               return; // Seat is already taken
             }
 
+            // Check if user is logged in
+            if (!window.authState.isLoggedIn) {
+              alert("Please login first to book a seat");
+              document.getElementById("authPanel").classList.remove("hidden");
+              return;
+            }
+
             try {
               const id = j[i].id; // Safe from loop closure
-              const name = prompt("Enter your name");
-              if (!name) return;
+              const name = window.authState.currentUser.name;
 
-              const res = await fetch(`/${id}/${name}`, { method: "PUT" });
+              const res = await fetch(`/${id}/${name}`, {
+                method: "PUT",
+                headers: {
+                  Authorization: `Bearer ${window.authState.accessToken}`,
+                },
+              });
               const data = await res.json();
+
+              if (res.status === 401) {
+                alert("Session expired. Please login again.");
+                window.authState.logout();
+                document.getElementById("authPanel").classList.remove("hidden");
+                return;
+              }
 
               if (data.error) {
                 alert("FAILED! Couldn't book! already booked.");
@@ -136,6 +366,200 @@
         }
       }
       run();
+
+      // Auth State Management
+      window.authState = {
+        isLoggedIn: false,
+        accessToken: null,
+        currentUser: null,
+
+        login: async (email, password) => {
+          try {
+            const res = await fetch("/auth/login", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ email, password }),
+            });
+            const data = await res.json();
+
+            if (!res.ok) {
+              throw new Error(data.message || "Login failed");
+            }
+
+            window.authState.accessToken = data.data.accessToken;
+            window.authState.currentUser = data.data.user;
+            window.authState.isLoggedIn = true;
+
+            localStorage.setItem("authToken", data.data.accessToken);
+            localStorage.setItem("currentUser", JSON.stringify(data.data.user));
+
+            return true;
+          } catch (error) {
+            console.error("Login error:", error);
+            return error.message;
+          }
+        },
+
+        register: async (name, email, password) => {
+          try {
+            const res = await fetch("/auth/register", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ name, email, password, role_id: 1 }),
+            });
+            const data = await res.json();
+
+            if (!res.ok) {
+              throw new Error(data.message || "Registration failed");
+            }
+
+            // Registration successful - user needs to verify email
+            return "registered";
+          } catch (error) {
+            console.error("Register error:", error);
+            return error.message;
+          }
+        },
+
+        logout: () => {
+          window.authState.isLoggedIn = false;
+          window.authState.accessToken = null;
+          window.authState.currentUser = null;
+          localStorage.removeItem("authToken");
+          localStorage.removeItem("currentUser");
+        },
+
+        restoreFromStorage: () => {
+          const token = localStorage.getItem("authToken");
+          const user = localStorage.getItem("currentUser");
+          if (token && user) {
+            window.authState.accessToken = token;
+            window.authState.currentUser = JSON.parse(user);
+            window.authState.isLoggedIn = true;
+            return true;
+          }
+          return false;
+        },
+      };
+
+      // Auth Form Handlers
+      document
+        .getElementById("switchToRegister")
+        .addEventListener("click", (e) => {
+          e.preventDefault();
+          document.getElementById("loginForm").classList.add("hidden");
+          document.getElementById("registerForm").classList.remove("hidden");
+        });
+
+      document
+        .getElementById("switchToLogin")
+        .addEventListener("click", (e) => {
+          e.preventDefault();
+          document.getElementById("registerForm").classList.add("hidden");
+          document.getElementById("loginForm").classList.remove("hidden");
+        });
+
+      document
+        .getElementById("loginFormElement")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const email = document.getElementById("loginEmail").value;
+          const password = document.getElementById("loginPassword").value;
+          const errorDiv = document.getElementById("loginError");
+
+          errorDiv.classList.add("hidden");
+          const btn = e.target.querySelector("button[type='submit']");
+          btn.disabled = true;
+          btn.textContent = "Logging in...";
+
+          const result = await window.authState.login(email, password);
+
+          if (result === true) {
+            document.getElementById("authPanel").classList.add("hidden");
+            document.getElementById("userGreeting").textContent =
+              `Welcome, ${window.authState.currentUser.name}`;
+            document.getElementById("navbar").classList.remove("hidden");
+            document.getElementById("loginEmail").value = "";
+            document.getElementById("loginPassword").value = "";
+          } else {
+            errorDiv.textContent = result;
+            errorDiv.classList.remove("hidden");
+          }
+
+          btn.disabled = false;
+          btn.textContent = "Login";
+        });
+
+      document
+        .getElementById("registerFormElement")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const name = document.getElementById("registerName").value;
+          const email = document.getElementById("registerEmail").value;
+          const password = document.getElementById("registerPassword").value;
+          const confirmPassword = document.getElementById(
+            "registerConfirmPassword",
+          ).value;
+          const errorDiv = document.getElementById("registerError");
+
+          if (password !== confirmPassword) {
+            errorDiv.textContent = "Passwords don't match";
+            errorDiv.classList.remove("hidden");
+            return;
+          }
+
+          errorDiv.classList.add("hidden");
+          const btn = e.target.querySelector("button[type='submit']");
+          btn.disabled = true;
+          btn.textContent = "Registering...";
+
+          const result = await window.authState.register(name, email, password);
+
+          if (result === "registered") {
+            // Show verification confirmation panel
+            document.getElementById("verificationEmail").textContent = email;
+            document
+              .getElementById("verificationPanel")
+              .classList.remove("hidden");
+            document.getElementById("authPanel").classList.add("hidden");
+
+            // Clear form
+            document.getElementById("registerName").value = "";
+            document.getElementById("registerEmail").value = "";
+            document.getElementById("registerPassword").value = "";
+            document.getElementById("registerConfirmPassword").value = "";
+          } else {
+            errorDiv.textContent = result || "Registration failed";
+            errorDiv.classList.remove("hidden");
+          }
+
+          btn.disabled = false;
+          btn.textContent = "Register";
+        });
+
+      document
+        .getElementById("backToLoginBtn")
+        .addEventListener("click", () => {
+          document.getElementById("verificationPanel").classList.add("hidden");
+          document.getElementById("authPanel").classList.remove("hidden");
+          document.getElementById("registerForm").classList.add("hidden");
+          document.getElementById("loginForm").classList.remove("hidden");
+        });
+
+      document.getElementById("logoutBtn").addEventListener("click", () => {
+        window.authState.logout();
+        document.getElementById("navbar").classList.add("hidden");
+        document.getElementById("authPanel").classList.remove("hidden");
+        document.getElementById("loginForm").classList.remove("hidden");
+        document.getElementById("registerForm").classList.add("hidden");
+      });
+
+      // Check if user is already logged in on page load
+      if (window.authState.restoreFromStorage()) {
+        document.getElementById("navbar").classList.remove("hidden");
+        document.getElementById("userGreeting").textContent =
+          `Welcome, ${window.authState.currentUser.name}`;
+      }
     </script>
   </body>
 </html>
