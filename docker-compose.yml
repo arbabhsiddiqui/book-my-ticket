@@ -8,6 +8,7 @@ services:
     command: sleep infinity
     depends_on:
       - db
+      - mailhog # 👈 add this
 
   db:
     image: postgres:16
@@ -20,6 +21,13 @@ services:
       POSTGRES_DB: sql_class_2_db
     volumes:
       - postgres_data_for_book_my_ticket:/var/lib/postgresql/data
+
+  mailhog: # 👈 NEW SERVICE
+    image: mailhog/mailhog
+    restart: unless-stopped
+    ports:
+      - "1025:1025" # SMTP
+      - "8025:8025" # Web UI
 
 volumes:
   postgres_data_for_book_my_ticket:

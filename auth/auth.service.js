@@ -1,4 +1,5 @@
 import crypto from "crypto";
+import bcrypt from "bcryptjs";
 import ApiError from "../common/utils/api-error.js";
 import {
     generateAccessToken,
@@ -6,71 +7,71 @@ import {
     generateResetToken,
     verifyRefreshToken,
 } from "../common/utils/jwt.utils.js";
-// import { sendVerificationEmail } from "../common/config/email.js";
 import { pool } from "../index.mjs";
+import { sendVerificationEmail } from "../common/config/email.js";
 
 
-const hashToken = (token) =>
-    crypto.createHash("sha256").update(token).digest("hex");
+const hashToken = (token) => crypto.createHash("sha256").update(token).digest("hex");
 
-const register = async ({ name, email, password, role }) => {
+const register = async ({ name, email, password, role_id }) => {
 
-    console.log("reach to service")
-
-    const existingQuery = "SELECT * FROM users where email=$1"
+    const existingQuery = "SELECT * FROM users where email=$1 and is_active=true"
 
     const existing = await pool.query(existingQuery, [email]);
-    if (existing) throw ApiError.conflict("Email already exists");
 
-    console.log(existing)
+    if (existing.rowCount !== 0) throw ApiError.conflict("Email already exists");
 
-    // const { rawToken, hashedToken } = generateResetToken();
+    const { rawToken, hashedToken } = generateResetToken();
 
-    // const user = await User.create({
-    //     name,
-    //     email,
-    //     password,
-    //     role,
-    //     verificationToken: hashedToken,
-    // });
+    console.log({ rawToken, hashedToken })
 
-    // console.log("for testing verfiy email without email", rawToken)
+    const saltRounds = 10;
 
-    // try {
-    //     await sendVerificationEmail(email, rawToken);
-    // } catch (error) {
-    //     console.error("Email send failed:", error);
-    // }
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-    // const userObj = user.toObject();
-    // delete userObj.password;
-    // delete userObj.verificationToken;
+    const addQuery = "INSERT INTO users (name,email,password,role_id,verification_token) VALUES ($1,$2,$3,$4,$5)";
 
-    // return userObj;
+    const user = await pool.query(addQuery, [name, email, hashedPassword, role_id, hashedToken]);
+
+
+    console.log(user)
+    try {
+        await sendVerificationEmail(email, rawToken);
+    } catch (error) {
+        console.error("Email send failed:", error);
+    }
+
+    return { name, email, role_id };
 };
 
 const login = async ({ email, password }) => {
-    //take email and find user in DB
-    // then check if password is correct
-    // check if verified or not
 
-    const user = await User.findOne({ email }).select("+password");
-    if (!user) throw ApiError.unauthorized("Invalid email or password");
 
-    const isPasswordValid = await user.comparePassword(password);
+    const findUserQuery = "select name,email,password,is_verify,role_id FROM users WHERE email=$1 and is_active=true"
+
+    const user = await pool.query(findUserQuery, [email]);
+    if (user.rowCount === 0) throw ApiError.unauthorized("Invalid email or password");
+
+
+    const userObj = user.rows[0];
+    console.log(userObj)
+
+    const isPasswordValid = await bcrypt.compare(password, userObj.password);
     if (!isPasswordValid) throw ApiError.unauthorized("Invalid email or password");
 
-    if (!user.isVerified) {
+    if (user.is_verify === false) {
         throw ApiError.forbidden("Please verify your email before logging in");
     }
 
-    const accessToken = generateAccessToken({ id: user._id, role: user.role });
-    const refreshToken = generateRefreshToken({ id: user._id });
+    const accessToken = generateAccessToken({ id: user.id, role: user.role_id });
+    const refreshToken = generateRefreshToken({ id: user.id });
 
     user.refreshToken = hashToken(refreshToken);
-    await user.save({ validateBeforeSave: false });
 
-    const userObj = user.toObject();
+
+    const saveTokenQuery = "UPDATE users SET refresh_token=$1 where email=$2"
+    await pool.query(saveTokenQuery, [user.refreshToken, email]);
+
     delete userObj.password;
     delete userObj.refreshToken;
 
@@ -139,18 +140,21 @@ const resetPassword = async ({ password, token }) => {
 
 const verifyEmail = async (token) => {
     const hashedToken = hashToken(token);
-    const user = await User.findOne({ verificationToken: hashedToken }).select(
-        "+verificationToken",
-    );
 
-    if (!user) {
-        throw ApiError.notfound("Invalid or expired verification token");
+    const verifyQuery = "SELECT  id from users WHERE verification_token=$1"
+    const user = await pool.query(verifyQuery, [hashedToken]);
+
+    if (user.rowCount == 0) {
+        throw ApiError.badRequest("Invalid or expired verification token");
     }
 
-    user.isVerified = true;
-    user.verificationToken = undefined;
-    await user.save({ validateBeforeSave: false });
-    return user;
+    const { id } = user.rows[0];
+
+
+    const verifyingQuery = "UPDATE users SET is_verify=true ,verification_token=null WHERE id=$1"
+    await pool.query(verifyingQuery, [id]);
+
+    return true;
 };
 
 const getMe = async (userId) => {

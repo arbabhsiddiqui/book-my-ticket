@@ -13,6 +13,7 @@ import { fileURLToPath } from "url";
 import cors from "cors";
 import authRoute from './auth/auth.routes.js'
 import cookieParser from "cookie-parser";
+import "dotenv/config"
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
