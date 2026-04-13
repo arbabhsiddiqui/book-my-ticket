@@ -1,5 +1,6 @@
 import ApiError from "../common/utils/api-error.js";
 import { verifyAccessToken } from "../common/utils/jwt.utils.js";
+import { pool } from "../index.mjs";
 
 
 const authenticate = async (req, res, next) => {
@@ -8,14 +9,20 @@ const authenticate = async (req, res, next) => {
         token = req.headers.authorization.split(" ")[1];
     }
 
+    console.log("token", token)
+
     if (!token) throw ApiError.unauthorized("Not Autheticated");
     const decoded = verifyAccessToken(token);
+    console.log(decoded)
+    const findUserQuery = "SELECT id,name,email,role_id FROM users WHERE id=$1 and is_active=true"
+
+    const userArray = await pool.query(findUserQuery, [decoded.id]);
     // const user = await User.findById(decoded.id);
-    // if (!user) throw ApiError.unauthorized("User no longer exists");
-    const user = {}
+    if (!userArray.rowCount === 0) throw ApiError.unauthorized("User no longer exists");
+    const user = userArray.rows[0];
     req.user = {
-        id: user._id,
-        role: user.role,
+        id: user.id,
+        role: user.role_id,
         name: user.name,
         email: user.email,
     };

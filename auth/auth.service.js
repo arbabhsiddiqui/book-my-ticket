@@ -47,7 +47,7 @@ const register = async ({ name, email, password, role_id }) => {
 const login = async ({ email, password }) => {
 
 
-    const findUserQuery = "select name,email,password,is_verify,role_id FROM users WHERE email=$1 and is_active=true"
+    const findUserQuery = "select id,name,email,password,is_verify,role_id FROM users WHERE email=$1 and is_active=true"
 
     const user = await pool.query(findUserQuery, [email]);
     if (user.rowCount === 0) throw ApiError.unauthorized("Invalid email or password");
@@ -59,18 +59,18 @@ const login = async ({ email, password }) => {
     const isPasswordValid = await bcrypt.compare(password, userObj.password);
     if (!isPasswordValid) throw ApiError.unauthorized("Invalid email or password");
 
-    if (user.is_verify === false) {
+    if (userObj.is_verify === false) {
         throw ApiError.forbidden("Please verify your email before logging in");
     }
 
-    const accessToken = generateAccessToken({ id: user.id, role: user.role_id });
-    const refreshToken = generateRefreshToken({ id: user.id });
+    const accessToken = generateAccessToken({ id: userObj.id, role: userObj.role_id });
+    const refreshToken = generateRefreshToken({ id: userObj.id });
 
-    user.refreshToken = hashToken(refreshToken);
+    userObj.refreshToken = hashToken(refreshToken);
 
 
     const saveTokenQuery = "UPDATE users SET refresh_token=$1 where email=$2"
-    await pool.query(saveTokenQuery, [user.refreshToken, email]);
+    await pool.query(saveTokenQuery, [userObj.refreshToken, email]);
 
     delete userObj.password;
     delete userObj.refreshToken;
@@ -158,8 +158,14 @@ const verifyEmail = async (token) => {
 };
 
 const getMe = async (userId) => {
-    const user = await User.findById(userId);
-    if (!user) throw ApiError.notfound("User not found");
+    const findUserQuery = "SELECT id,name,email,role_id FROM users WHERE id=$1 and is_active=true"
+
+    const resultArray = await pool.query(findUserQuery, [userId]);
+
+    if (resultArray.rowCount === 0) throw ApiError.notfound("User not found");
+
+    const user = resultArray.rows[0]
+
     return user;
 };
 

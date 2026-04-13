@@ -14,6 +14,7 @@ import cors from "cors";
 import authRoute from './auth/auth.routes.js'
 import cookieParser from "cookie-parser";
 import "dotenv/config"
+import { authenticate } from "./auth/auth.middleware.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -56,7 +57,7 @@ app.get("/seats", async (req, res) => {
 
 //book a seat give the seatId and your name
 
-app.put("/:id/:name", async (req, res) => {
+app.put("/:id/:name", authenticate, async (req, res) => {
   try {
     const id = req.params.id;
     const name = req.params.name;
