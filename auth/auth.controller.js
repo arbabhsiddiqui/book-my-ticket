@@ -20,42 +20,45 @@ const login = async (req, res) => {
     ApiResponse.ok(res, "Login successful", { user, accessToken });
 };
 
-const logout = async (req, res) => {
-    await authService.logout(req.user.id);
-    res.clearCookie("refreshToken");
-    ApiResponse.ok(res, "Logout Success");
-};
+// const logout = async (req, res) => {
+//     await authService.logout(req.user.id);
+//     res.clearCookie("refreshToken");
+//     ApiResponse.ok(res, "Logout Success");
+// };
 
-const getMe = async (req, res) => {
-    const user = await authService.getMe(req.user.id);
-    ApiResponse.ok(res, "User Profile", user);
-};
+// const getMe = async (req, res) => {
+//     const user = await authService.getMe(req.user.id);
+//     ApiResponse.ok(res, "User Profile", user);
+// };
 
-const verifyEmail = async (req, res) => {
-    const user = await authService.verifyEmail(req.params.token);
-    ApiResponse.ok(res, "Email verified successfully", { email: user.email });
-};
+// const verifyEmail = async (req, res) => {
+//     const user = await authService.verifyEmail(req.params.token);
+//     ApiResponse.ok(res, "Email verified successfully", { email: user.email });
+// };
 
 
-const forgotPassword = async (req, res) => {
-    await authService.forgotPassword(req.body.email)
-    ApiResponse.ok(res, "ChangePassword url send to email", {})
+// const forgotPassword = async (req, res) => {
+//     await authService.forgotPassword(req.body.email)
+//     ApiResponse.ok(res, "ChangePassword url send to email", {})
+// }
+
+// const resetPassword = async (req, res) => {
+//     await authService.resetPassword(req.body)
+//     ApiResponse.ok(res, "Successfully reset", {})
+// }
+
+
+// const changePassword = async (req, res) => {
+//     const { oldPassword, newPassword } = req.body;
+//     const email = req.user.email;
+//     await authService.changePassword({ oldPassword, newPassword, email })
+//     ApiResponse.ok(res, "Successfully changed", {})
+// }
+
+
+
+
+export {
+    register, login,
+    // logout, getMe, verifyEmail, forgotPassword, resetPassword, changePassword
 }
-
-const resetPassword = async (req, res) => {
-    await authService.resetPassword(req.body)
-    ApiResponse.ok(res, "Successfully reset", {})
-}
-
-
-const changePassword = async (req, res) => {
-    const { oldPassword, newPassword } = req.body;
-    const email = req.user.email;
-    await authService.changePassword({ oldPassword, newPassword, email })
-    ApiResponse.ok(res, "Successfully changed", {})
-}
-
-
-
-
-export { register, login, logout, getMe, verifyEmail, forgotPassword, resetPassword, changePassword }
